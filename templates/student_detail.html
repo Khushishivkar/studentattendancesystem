@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ student.name }} · Roll Call{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1>{{ student.name }}</h1>
+    <p class="muted">Roll {{ student.roll_no }}{% if student.section %} · {{ student.section }}{% endif %}</p>
+  </div>
+  <a class="btn" href="{{ url_for('student_edit', sid=student.id) }}">Edit</a>
+</header>
+
+<section class="panel">
+  <h2>Attendance</h2>
+  {% if total %}
+  <p class="big {{ 'pct-low' if pct < LOW }}">{{ pct }}%</p>
+  <ul class="legend">
+    <li><i class="dot present"></i>{{ counts.Present }} present</li>
+    <li><i class="dot late"></i>{{ counts.Late }} late</li>
+    <li><i class="dot absent"></i>{{ counts.Absent }} absent</li>
+  </ul>
+  {% else %}
+  <p class="muted">No attendance marked yet.</p>
+  {% endif %}
+</section>
+
+<section class="panel">
+  <h2>Last 30 days</h2>
+  <div class="dots">
+    {% for d, status in dots %}
+    <span class="sq {{ status|lower if status else 'none' }}" title="{{ d.strftime('%d %b') }}: {{ status or 'not marked' }}"></span>
+    {% endfor %}
+  </div>
+</section>
+
+{% if records %}
+<section class="panel flush">
+  <h2 class="pad">Recent records</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Date</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for r in records %}
+        <tr><td>{{ r.day.strftime('%a, %d %b %Y') }}</td><td><span class="tag {{ r.status|lower }}">{{ r.status }}</span></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

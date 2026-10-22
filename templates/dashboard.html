@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Roll Call{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1>{{ today.strftime('%A, %d %B') }}</h1>
+    <p class="muted">{{ total_students }} student{{ '' if total_students == 1 else 's' }} enrolled</p>
+  </div>
+  <a class="btn primary" href="{{ url_for('attendance') }}">{{ 'Edit today' if marked else 'Take attendance' }}</a>
+</header>
+
+{% if total_students == 0 %}
+<section class="panel empty">
+  <h2>No students yet</h2>
+  <p class="muted">Add your class to start taking attendance.</p>
+  <a class="btn primary" href="{{ url_for('students_bulk') }}">Add students</a>
+</section>
+{% else %}
+<section class="panel">
+  <h2>Today</h2>
+  <div class="stack-bar" role="img" aria-label="{{ present }} present, {{ late }} late, {{ absent }} absent, {{ unmarked }} not marked">
+    <span class="s-present" style="width: {{ seg.present }}%"></span>
+    <span class="s-late" style="width: {{ seg.late }}%"></span>
+    <span class="s-absent" style="width: {{ seg.absent }}%"></span>
+  </div>
+  <ul class="legend">
+    <li><i class="dot present"></i>{{ present }} present</li>
+    <li><i class="dot late"></i>{{ late }} late</li>
+    <li><i class="dot absent"></i>{{ absent }} absent</li>
+    <li><i class="dot none"></i>{{ unmarked }} not marked</li>
+  </ul>
+</section>
+
+<section class="panel">
+  <h2>Last 14 days</h2>
+  <div class="trend">
+    {% for d in trend %}
+    <div class="col" title="{{ d.day.strftime('%d %b') }}: {{ (d.pct ~ '%') if d.pct is not none else 'not marked' }}">
+      <span class="pct">{{ d.pct if d.pct is not none else '' }}</span>
+      <span class="track"><span class="bar {{ 'empty' if d.pct is none }}" style="height: {{ d.pct if d.pct is not none else 0 }}%"></span></span>
+      <small>{{ d.day.day }}</small>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Below {{ LOW }}% in the last 30 days</h2>
+  {% if low %}
+  <ul class="plain-list">
+    {% for r in low %}
+    <li>
+      <a href="{{ url_for('student_detail', sid=r.id) }}">{{ r.name }}</a>
+      <span class="muted">{{ r.roll_no }}</span>
+      <strong class="pct-low">{{ r.pct }}%</strong>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="muted">Everyone is at or above {{ LOW }}%.</p>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

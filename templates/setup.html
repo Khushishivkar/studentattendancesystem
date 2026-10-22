@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Set up · Roll Call{% endblock %}
+{% block content %}
+<div class="auth-card panel">
+  <h1>Create your account</h1>
+  <p class="muted">This is the first sign-in for Roll Call.</p>
+  <form method="post" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Username <input name="username" autocomplete="username" required autofocus></label>
+    <label>Password <input type="password" name="password" autocomplete="new-password" minlength="8" required></label>
+    <label>Confirm password <input type="password" name="confirm" autocomplete="new-password" minlength="8" required></label>
+    <button class="btn primary" type="submit">Create account</button>
+  </form>
+</div>
+{% endblock %}

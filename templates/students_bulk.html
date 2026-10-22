@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Add students · Roll Call{% endblock %}
+{% block content %}
+<header class="page-head"><h1>Add several students</h1></header>
+<section class="panel narrow">
+  <form method="post" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>One student per line: roll number, name, section
+      <textarea name="lines" rows="10" placeholder="1, Asha Patil, TY-A&#10;2, Ravi Kumar, TY-A&#10;3, Sana Khan, TY-B" required></textarea>
+    </label>
+    <p class="muted">Section is optional. Roll numbers already in use are skipped.</p>
+    <div class="actions">
+      <button class="btn primary" type="submit">Add students</button>
+      <a class="btn" href="{{ url_for('students') }}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

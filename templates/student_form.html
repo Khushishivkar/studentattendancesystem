@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit student' if student else 'Add student' }} · Roll Call{% endblock %}
+{% block content %}
+<header class="page-head"><h1>{{ 'Edit student' if student else 'Add student' }}</h1></header>
+<section class="panel narrow">
+  <form method="post" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Roll number <input name="roll_no" maxlength="20" required value="{{ form.get('roll_no', student.roll_no if student else '') }}"></label>
+    <label>Name <input name="name" maxlength="100" required value="{{ form.get('name', student.name if student else '') }}"></label>
+    <label>Section <input name="section" maxlength="30" list="sections" value="{{ form.get('section', student.section if student else '') }}">
+      <datalist id="sections">{% for s in all_sections %}<option value="{{ s }}">{% endfor %}</datalist>
+    </label>
+    <div class="actions">
+      <button class="btn primary" type="submit">Save</button>
+      <a class="btn" href="{{ url_for('student_detail', sid=student.id) if student else url_for('students') }}">Cancel</a>
+    </div>
+  </form>
+  {% if student %}
+  <form method="post" action="{{ url_for('student_delete', sid=student.id) }}" class="danger-zone"
+        onsubmit="return confirm('Delete {{ student.name | replace("'", "") }} and all their attendance records?')">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <p class="muted">Deleting a student also removes their attendance records.</p>
+    <button class="btn danger" type="submit">Delete student</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

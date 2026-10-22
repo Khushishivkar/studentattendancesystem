@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Attendance · Roll Call{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Attendance</h1>
+  <form method="get" class="filters" data-autosubmit>
+    <input type="date" name="date" value="{{ day.isoformat() }}" max="{{ today.isoformat() }}" aria-label="Date">
+    {% if all_sections %}
+    <select name="section" aria-label="Section">
+      <option value="">All sections</option>
+      {% for s in all_sections %}<option value="{{ s }}" {{ 'selected' if s == section }}>{{ s }}</option>{% endfor %}
+    </select>
+    {% endif %}
+  </form>
+</header>
+
+{% if roster %}
+<form method="post" data-sheet>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="date" value="{{ day.isoformat() }}">
+  <input type="hidden" name="section" value="{{ section }}">
+  <p class="muted sheet-date">{{ day.strftime('%A, %d %B %Y') }}</p>
+  <ul class="sheet">
+    {% for s in roster %}
+    {% set current = marks.get(s.id) %}
+    <li class="row">
+      <div class="who">
+        <span class="roll">{{ s.roll_no }}</span>
+        <span class="name">{{ s.name }}</span>
+      </div>
+      <div class="seg" role="radiogroup" aria-label="Status for {{ s.name }}">
+        <input type="radio" id="s{{ s.id }}-p" name="status_{{ s.id }}" value="Present" {{ 'checked' if current == 'Present' }}>
+        <label class="p" for="s{{ s.id }}-p">Present</label>
+        <input type="radio" id="s{{ s.id }}-l" name="status_{{ s.id }}" value="Late" {{ 'checked' if current == 'Late' }}>
+        <label class="l" for="s{{ s.id }}-l">Late</label>
+        <input type="radio" id="s{{ s.id }}-a" name="status_{{ s.id }}" value="Absent" {{ 'checked' if current == 'Absent' }}>
+        <label class="a" for="s{{ s.id }}-a">Absent</label>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  <div class="savebar">
+    <div class="counts" aria-live="polite">
+      <span><i class="dot present"></i><b data-count="Present">0</b> present</span>
+      <span><i class="dot late"></i><b data-count="Late">0</b> late</span>
+      <span><i class="dot absent"></i><b data-count="Absent">0</b> absent</span>
+      <span class="muted"><b data-count="None">0</b> left</span>
+    </div>
+    <div class="actions">
+      <button class="btn" type="button" data-all-present>All present</button>
+      <button class="btn primary" type="submit">Save</button>
+    </div>
+  </div>
+</form>
+{% else %}
+<section class="panel empty">
+  <h2>No students to mark</h2>
+  <p class="muted">Add students first{{ ' or pick another section' if section }}.</p>
+  <a class="btn primary" href="{{ url_for('students_bulk') }}">Add students</a>
+</section>
+{% endif %}
+{% endblock %}

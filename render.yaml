@@ -1,0 +1,24 @@
+databases:
+  - name: rollcall-db
+    plan: free
+    databaseName: rollcall
+    user: rollcall
+
+services:
+  - type: web
+    name: student-attendance
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 1 --threads 4 --timeout 60
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.3
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: rollcall-db
+          property: connectionString
+      - key: TIMEZONE
+        value: Asia/Kolkata

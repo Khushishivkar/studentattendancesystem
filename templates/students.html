@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Students · Roll Call{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Students</h1>
+  <div class="actions">
+    <a class="btn" href="{{ url_for('students_bulk') }}">Add several</a>
+    <a class="btn primary" href="{{ url_for('student_new') }}">Add student</a>
+  </div>
+</header>
+
+<form method="get" class="filters" data-autosubmit>
+  <input type="search" name="q" value="{{ q }}" placeholder="Search name or roll number" aria-label="Search">
+  {% if all_sections %}
+  <select name="section" aria-label="Section">
+    <option value="">All sections</option>
+    {% for s in all_sections %}<option value="{{ s }}" {{ 'selected' if s == section }}>{{ s }}</option>{% endfor %}
+  </select>
+  {% endif %}
+  <button class="btn" type="submit">Search</button>
+</form>
+
+{% if rows %}
+<div class="table-wrap panel flush">
+  <table>
+    <thead><tr><th>Roll no</th><th>Name</th><th>Section</th><th>Attendance</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.roll_no }}</td>
+        <td><a href="{{ url_for('student_detail', sid=r.id) }}">{{ r.name }}</a></td>
+        <td class="muted">{{ r.section or '–' }}</td>
+        <td>
+          {% if r.pct is none %}<span class="muted">No records</span>
+          {% else %}<span class="meter"><i style="width: {{ r.pct }}%" class="{{ 'low' if r.low }}"></i></span>
+          <span class="{{ 'pct-low' if r.low }}">{{ r.pct }}%</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<section class="panel empty">
+  <h2>{{ 'No matches' if q or section else 'No students yet' }}</h2>
+  <p class="muted">{{ 'Try a different search.' if q or section else 'Add your class to get started.' }}</p>
+</section>
+{% endif %}
+{% endblock %}
